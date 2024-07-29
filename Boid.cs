@@ -27,6 +27,11 @@ namespace EvoBoids
             angle = Utility.rand.NextDouble() * 2 * Math.PI;
         }
 
+        public void die()
+        {
+            World.killQueue.Enqueue(this);
+        }
+
         public abstract void Update();
     }
 }

@@ -1,5 +1,4 @@
-﻿using DocumentFormat.OpenXml.Drawing.Charts;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -10,10 +9,14 @@ using System.Threading.Tasks;
 
 namespace EvoBoids
 {
-    internal class Herbivore : Boid
+    internal class Carnivore : Boid
     {
-        public Herbivore(Vector2 _pos) : base(_pos)
+        double huntStrength = 1;
+
+        public Carnivore(Vector2 _pos) : base(_pos)
         {
+            maxSpeed = 2.2;
+            minSpeed = 1.1;
         }
 
         public override void Update()
@@ -25,7 +28,6 @@ namespace EvoBoids
         {
             Vector2 velocity = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle));
             int neighbors = 0;
-            Vector2 avgHeading = new Vector2(0, 0);
             Vector2 avgPos = new Vector2(0, 0);
             ArrayList nearbyBoids = new ArrayList();
             World.tree.getBoids(pos.X, pos.Y, vision, nearbyBoids);
@@ -36,23 +38,24 @@ namespace EvoBoids
                 {
                     if (b is Herbivore)
                     {
-                        if ((b.pos - pos).Length() < avoidance)
-                        {
-                            velocity -= (float)avoidStrength * (b.pos - pos);
-                        }
                         neighbors++;
-                        avgHeading += new Vector2((float)Math.Cos(b.angle), (float)Math.Sin(b.angle));
                         avgPos += b.pos - pos;
+                        if ((b.pos - pos).Length() < Settings.carnivoreSize)
+                        {
+                            eat(b);
+                        }
+                    } else if (b is Carnivore)
+                    {
+                        velocity -= (float)avoidStrength * (b.pos - pos);
                     }
                 }
             }
             if (neighbors > 0)
             {
-                velocity += (float)alignStrength * avgHeading / neighbors;
-                velocity += (float)cohesionStrength * avgPos / neighbors;
+                velocity += (float)huntStrength * avgPos / neighbors;
             }
             double newAngle = Math.Atan2(velocity.Y, velocity.X);
-            double speed = maxSpeed - Math.Abs(newAngle - angle)/Math.PI * (maxSpeed-minSpeed);
+            double speed = maxSpeed - Math.Abs(newAngle - angle) / Math.PI * (maxSpeed - minSpeed);
             if (newAngle - angle > turnSpeed)
             {
                 angle += turnSpeed;
@@ -82,6 +85,11 @@ namespace EvoBoids
             {
                 pos.Y -= World.height;
             }
+        }
+
+        void eat(Boid b)
+        {
+            b.die();
         }
     }
 }

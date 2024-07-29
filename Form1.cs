@@ -49,6 +49,7 @@ namespace EvoBoids
             Font font = new Font("Arial", 16);
             SolidBrush textBrush = new SolidBrush(Color.Black);
             SolidBrush herbivoreBrush = new SolidBrush(Color.CornflowerBlue);
+            SolidBrush carnivoreBrush = new SolidBrush(Color.OrangeRed);
 
             fG.Clear(Color.WhiteSmoke);
             while (true) {
@@ -57,21 +58,29 @@ namespace EvoBoids
                 g.Clear(Color.WhiteSmoke);
                 foreach (Boid b in World.boids)
                 {
+                    int size = Settings.herbivoreSize;
+                    if (b is Carnivore) size = Settings.carnivoreSize;
                     Vector2 head = b.pos +
-                        8 * new Vector2((float)Math.Cos(b.angle), (float)Math.Sin(b.angle));
+                        size * new Vector2((float)Math.Cos(b.angle), (float)Math.Sin(b.angle));
                     Vector2 leftTail = b.pos +
-                        8 * new Vector2((float)Math.Cos(b.angle + Math.PI * 3 / 4), (float)Math.Sin(b.angle + Math.PI * 3 / 4));
+                        size * new Vector2((float)Math.Cos(b.angle + Math.PI * 3 / 4), (float)Math.Sin(b.angle + Math.PI * 3 / 4));
                     Vector2 rightTail = b.pos +
-                        8 * new Vector2((float)Math.Cos(b.angle - Math.PI * 3 / 4), (float)Math.Sin(b.angle - Math.PI * 3 / 4));
+                        size * new Vector2((float)Math.Cos(b.angle - Math.PI * 3 / 4), (float)Math.Sin(b.angle - Math.PI * 3 / 4));
                     Point[] pointArray = { 
                     new Point((int)head.X - cameraPosition.X, (int)head.Y - cameraPosition.Y), new Point((int)leftTail.X - cameraPosition.X, (int)leftTail.Y - cameraPosition.Y),
                     new Point((int)head.X - cameraPosition.X, (int)head.Y - cameraPosition.Y), new Point((int)rightTail.X - cameraPosition.X, (int)rightTail.Y - cameraPosition.Y),
                     new Point((int)rightTail.X - cameraPosition.X, (int)rightTail.Y - cameraPosition.Y), new Point((int)leftTail.X - cameraPosition.X, (int)leftTail.Y - cameraPosition.Y)};
-                    g.FillPolygon(herbivoreBrush, pointArray);
+                    if (b is Herbivore)
+                    {
+                        g.FillPolygon(herbivoreBrush, pointArray);
+                    } else if (b is Carnivore)
+                    {
+                        g.FillPolygon(carnivoreBrush, pointArray);
+                    }
                     g.DrawPolygon(outlinePen, pointArray);
                 }
 
-                World.tree.show(g, cameraPosition);
+                //World.tree.show(g, cameraPosition);
 
                 double avgTicks = 0;
                 if (dateTimes.Count == 0) dateTimes.Enqueue(DateTime.Now);

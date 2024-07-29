@@ -10,6 +10,7 @@ namespace EvoBoids
     internal static class World
     {
         public static HashSet<Boid> boids = new HashSet<Boid>();
+        public static Queue<Boid> killQueue = new Queue<Boid>();
         public static Quadtree tree = new Quadtree(width/2, height/2, width, height);
         public static int width = 2000;
         public static int height = 2000;
@@ -19,6 +20,12 @@ namespace EvoBoids
             for (int i = 0; i < 1000; i++)
             {
                 boids.Add(new Herbivore(new Vector2(Utility.rand.Next() % 
+                    width, Utility.rand.Next() % height)));
+            }
+
+            for (int i = 0; i < 50; i++)
+            {
+                boids.Add(new Carnivore(new Vector2(Utility.rand.Next() %
                     width, Utility.rand.Next() % height)));
             }
         }
@@ -33,6 +40,10 @@ namespace EvoBoids
             foreach (Boid b in boids)
             {
                 b.Update();
+            }
+            while (killQueue.Count > 0)
+            {
+                boids.Remove(killQueue.Dequeue());
             }
         }
     }

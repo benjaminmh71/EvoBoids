@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Collections;
 using System.Drawing;
+using System.Security.Cryptography;
 
 namespace EvoBoids
 {
@@ -67,6 +68,37 @@ namespace EvoBoids
             topRight = new Quadtree(x + width / 4, y - height / 4, width / 2, height / 2);
             bottomLeft = new Quadtree(x - width / 4, y + height / 4, width / 2, height / 2);
             bottomRight = new Quadtree(x + width / 4, y + height / 4, width / 2, height / 2);
+        }
+
+        public void getBoids(double boidX, double boidY, double range, ArrayList list)
+        {
+            if (!isOverlapping(boidX, boidY, range))
+            {
+                return;
+            }
+
+            foreach (Boid b in boids)
+            {
+                if ((b.pos - new Vector2((float)boidX, (float)boidY)).Length() < range)
+                {
+                    list.Add(b);
+                }
+            }
+
+            if (divided)
+            {
+                topLeft.getBoids(boidX, boidY, range, list);
+                topRight.getBoids(boidX, boidY, range, list);
+                bottomLeft.getBoids(boidX, boidY, range, list);
+                bottomRight.getBoids(boidX, boidY, range, list);
+            }
+        }
+
+        public bool isOverlapping(double boidX, double boidY, double range) {
+            return !(boidX - range/2 > x + width/2 ||
+                boidX + range/2 < x - width/2 ||
+                boidY - range/2 > y + height/2 ||
+                boidY + range/2 < y - height/2);
         }
 
         public void show(Graphics g, Point cameraPosition)
