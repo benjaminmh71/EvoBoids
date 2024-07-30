@@ -19,10 +19,33 @@ namespace EvoBoids
         public override void Update()
         {
             Move();
+            if (World.energy > 0)
+            {
+                energy += Settings.herbivoreEnergyGain;
+                World.energy -= 1;
+            }
+            age++;
+            if (energy < 0 || age > deathTime)
+            {
+                die();
+            }
+            if (energy > Settings.herbivoreReproductionThreshhold)
+            {
+                reproduce();
+                energy = Settings.initialEnergy;
+            }
         }
 
         void Move()
         {
+            if (angle > Math.PI)
+            {
+                angle -= Math.PI * 2;
+            }
+            if (angle < -Math.PI)
+            {
+                angle += Math.PI * 2;
+            }
             Vector2 velocity = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle));
             int neighbors = 0;
             Vector2 avgHeading = new Vector2(0, 0);
@@ -82,6 +105,14 @@ namespace EvoBoids
             {
                 pos.Y -= World.height;
             }
+        }
+
+        void reproduce()
+        {
+            Herbivore offspring = new Herbivore(pos);
+            offspring.pos.X += (float)Utility.rand.NextDouble() * 10;
+            offspring.pos.Y += (float)Utility.rand.NextDouble() * 10;
+            World.spawnQueue.Enqueue(offspring);
         }
     }
 }

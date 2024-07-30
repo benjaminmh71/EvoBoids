@@ -18,6 +18,10 @@ namespace EvoBoids
         public double alignStrength = 1;
         public double cohesionStrength = 0.01;
 
+        public int deathTime = (int)(Settings.minLifetime * (1 + Utility.rand.NextDouble()));
+        public int age = 0;
+        public double energy = Settings.initialEnergy + Utility.rand.NextDouble() - 0.5;
+
         public Vector2 pos;
         public double angle;
 

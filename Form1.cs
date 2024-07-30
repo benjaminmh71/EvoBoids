@@ -95,7 +95,21 @@ namespace EvoBoids
                 {
                     dateTimes.Dequeue();
                 }
-                g.DrawString(((int)(1/(deltaTime/100000000))).ToString(), font, textBrush, new Point(10, 10));
+                int nH = 0;
+                int nC = 0;
+                foreach (Boid b in World.boids)
+                {
+                    if (b is Herbivore)
+                    {
+                        nH++;
+                    } else
+                    {
+                        nC++;
+                    }
+                }
+                g.DrawString(((int)(1/(deltaTime/100000000))).ToString()
+                    + "  H: " + nH
+                    + "  C: " + nC, font, textBrush, new Point(10, 10));
                 fG.DrawImage(bmp, new Point(0, 0));
             }
         }

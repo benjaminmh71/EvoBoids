@@ -12,16 +12,40 @@ namespace EvoBoids
     internal class Carnivore : Boid
     {
         double huntStrength = 1;
+        int digestionTimer = 0;
 
         public Carnivore(Vector2 _pos) : base(_pos)
         {
-            maxSpeed = 2.2;
-            minSpeed = 1.1;
+            //maxSpeed = 2.1;
+            //minSpeed = 1.05;
         }
 
         public override void Update()
         {
             Move();
+
+            if (digestionTimer > 0)
+            {
+                digestionTimer--;
+                maxSpeed = 1;
+                minSpeed = 0.5;
+            } else
+            {
+                maxSpeed = 2;
+                minSpeed = 1;
+            }
+
+            energy += Settings.carnivoreEnergyGain;
+            age++;
+            if (energy < 0 || age > deathTime)
+            {
+                die();
+            }
+            if (energy > Settings.carnivoreReproductionThreshhold)
+            {
+                reproduce();
+                energy = Settings.initialEnergy;
+            }
         }
 
         void Move()
@@ -87,9 +111,20 @@ namespace EvoBoids
             }
         }
 
+        void reproduce()
+        {
+            Carnivore offspring = new Carnivore(pos);
+            offspring.pos.X += (float)Utility.rand.NextDouble() * 10;
+            offspring.pos.Y += (float)Utility.rand.NextDouble() * 10;
+            World.spawnQueue.Enqueue(offspring);
+        }
+
         void eat(Boid b)
         {
+            if (digestionTimer > 0) return;
             b.die();
+            energy += Settings.herbivoreEatenEnergy;
+            digestionTimer += Settings.digestionTime;
         }
     }
 }

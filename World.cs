@@ -10,8 +10,10 @@ namespace EvoBoids
     internal static class World
     {
         public static HashSet<Boid> boids = new HashSet<Boid>();
+        public static Queue<Boid> spawnQueue = new Queue<Boid>();
         public static Queue<Boid> killQueue = new Queue<Boid>();
         public static Quadtree tree = new Quadtree(width/2, height/2, width, height);
+        public static double energy = 0;
         public static int width = 2000;
         public static int height = 2000;
 
@@ -28,10 +30,18 @@ namespace EvoBoids
                 boids.Add(new Carnivore(new Vector2(Utility.rand.Next() %
                     width, Utility.rand.Next() % height)));
             }
+
+            foreach (Boid b in boids)
+            {
+                b.energy += Utility.rand.NextDouble() * 2;
+                b.age += (int) (Utility.rand.NextDouble() * Settings.minLifetime);
+            }
         }
 
         public static void Update()
         {
+            energy = Settings.availableEnergy;
+
             tree = new Quadtree(width / 2, height / 2, width, height);
             foreach (Boid b in boids) 
             {
@@ -40,6 +50,10 @@ namespace EvoBoids
             foreach (Boid b in boids)
             {
                 b.Update();
+            }
+            while (spawnQueue.Count > 0)
+            {
+                boids.Add(spawnQueue.Dequeue());
             }
             while (killQueue.Count > 0)
             {
